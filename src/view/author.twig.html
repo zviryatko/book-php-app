@@ -1,0 +1,26 @@
+{% extends layout %}
+
+{% block title %}{{ author.name }} - {{ parent() }}{% endblock %}
+
+{% block content %}
+    <article>
+        <h1>{{ author.name }}</h1>
+        <blockquote>{{ author.biography }}</blockquote>
+
+        <footer class="book-list">
+
+            {% if author.books is empty %}
+                <div class="important">This author not has books yet</div>
+            {% else %}
+                <h2>Books:</h2>
+                <ul>
+                    {% for book in author.books %}
+                        <li>
+                            <h3 class="title"><a href="/book/{{ book.id }}">{{ book.title }}</a></h3>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </footer>
+    </article>
+{% endblock %}

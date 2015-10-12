@@ -1,0 +1,27 @@
+{% extends layout %}
+
+{% block title %}Home - {{ parent() }}{% endblock %}
+
+{% block content %}
+    <h1>List of books</h1>
+
+    {% if books is empty %}
+        <div class="important">There is no books</div>
+    {% else %}
+        <ul>
+            {% for book in books %}
+                <li class="col-md-6">
+                    {% block book %}
+                        <div class="thumbnail text-center">
+                            <a href="/book/{{ book.id }}"><img src="/{{ book.image }}" alt="{{ book.title }}"/></a>
+
+                            <h3 class="title"><a href="/book/{{ book.id }}">{{ book.title }}</a></h3>
+
+                            <div><a href="/author/{{ book.authorID }}">{{ book.author }}</a></div>
+                        </div>
+                    {% endblock %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+{% endblock %}

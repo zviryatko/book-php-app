@@ -1,0 +1,13 @@
+{% extends layout %}
+
+{% block title %}{{ book.title }} - {{ parent() }}{% endblock %}
+
+{% block content %}
+    <article>
+        <h1>{{ book.title }}</h1>
+
+        <div><a href="/author/{{ book.authorID }}">{{ book.author }}</a></div>
+        <div><a href="/category/{{ book.categoryID }}">{{ book.category }}</a></div>
+        <blockquote>{{ book.description }}</blockquote>
+    </article>
+{% endblock %}
