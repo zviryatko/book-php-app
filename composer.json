@@ -10,6 +10,10 @@
     "require": {
         "nikic/fast-route": "^0.6.0",
         "twig/twig": "~1.0",
-        "league/container": "^2.0"
+        "twbs/bootstrap": "~3.0",
+        "league/container": "~1.0"
+    },
+    "scripts": {
+        "post-update-cmd": "cp -uR vendor/twbs/bootstrap/dist public/bootstrap"
     }
 }

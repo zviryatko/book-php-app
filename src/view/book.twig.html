@@ -4,10 +4,17 @@
 
 {% block content %}
     <article>
-        <h1>{{ book.title }}</h1>
+        <h1 class="text-center">{{ book.title }}</h1>
 
-        <div><a href="/author/{{ book.authorID }}">{{ book.author }}</a></div>
-        <div><a href="/category/{{ book.categoryID }}">{{ book.category }}</a></div>
-        <blockquote>{{ book.description }}</blockquote>
+        <dl class="dl-horizontal">
+            <dt>Author</dt>
+            <dd><a href="/author/{{ book.authorID }}">{{ book.author }}</a></dd>
+            <dt>Category</dt>
+            <dd><a href="/category/{{ book.categoryID }}">{{ book.category }}</a></dd>
+            <dt>Description</dt>
+            <dd>
+                <blockquote>{{ book.description }}</blockquote>
+            </dd>
+        </dl>
     </article>
 {% endblock %}

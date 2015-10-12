@@ -7,17 +7,34 @@
     <![endif]-->
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}Book application{% endblock %}</title>
-    <link href="css/style.css" rel="stylesheet">
-    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/bootstrap/css/bootstrap-theme.min.css">
+    <script src="/bootstrap/js/bootstrap.min.js"></script>
 </head>
 
 <body>
+{% block navbar %}
+    <nav class="navbar navbar-inverse" role="navigation">
+        <div class="container">
+            <a href="/"><img class="pull-left" src="/images/book.png" height="50"/></a>
+            <ul class="nav navbar-nav">
+                <li><a href="/">Home</a></li>
+                <li><a href="/authors">Authors</a></li>
+            </ul>
+        </div>
+    </nav>
+{% endblock %}
 <div class="container">
-    {% block content %}{% endblock %}
-</div>
-<div id="footer">
+    <div class="row">
+        {% block content %}{% endblock %}
+    </div>
     {% block footer %}
-        &copy; Copyright 2015 by <a href="https://makeyoulivebetter.org.ua/">Zviryatko</a>.
+        <hr>
+        <footer>
+            <p class="container text-right">
+                &copy; Copyright 2015 by <a href="https://makeyoulivebetter.org.ua/">Zviryatko</a>.
+            </p>
+        </footer>
     {% endblock %}
 </div>
 </body>

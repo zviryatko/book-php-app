@@ -1,32 +1,11 @@
 <?php
 
-namespace zviryatko\BookApp;
-
-use FastRoute\BadRouteException;
-use League\Container\Container;
-
-$container = new Container;
-
-$container->add('twig', function () {
-    $loader = new \Twig_Loader_Filesystem(__DIR__ . '/view');
-    return new \Twig_Environment($loader, [
-      'cache' => dirname(__DIR__) . '/cache',
-      'debug' => true,
-    ]);
-});
+/**
+ * @var \League\Container\Container $container
+ */
+$container = require_once 'services.php';
 
 $twig = $container->get('twig');
-$twig->addGlobal('layout', 'layout.twig.html');
-
-$container->add('books', function () {
-    $books_provider = file_get_contents(dirname(__DIR__) . '/data/book-list.json');
-    return json_decode($books_provider);
-});
-
-$container->add('authors', function () {
-    $authors_provider = file_get_contents('data/authors-list.json');
-    return json_decode($authors_provider);
-});
 
 /**
  * @var \FastRoute\Dispatcher $dispatcher
@@ -38,9 +17,9 @@ $dispatcher = \FastRoute\simpleDispatcher(
             'books' => $container->get('books'),
           ]);
       });
-      $r->addRoute('GET', '/author-list', function () use ($twig, $container) {
-          return $twig->render('author-list.twig.html', [
-            'author' => $container->get('authors'),
+      $r->addRoute('GET', '/authors', function () use ($twig, $container) {
+          return $twig->render('authors.twig.html', [
+            'authors' => $container->get('authors'),
           ]);
       });
       $r->addRoute('GET', '/book/{id:\d+}', function ($id) use ($twig, $container) {
@@ -67,7 +46,11 @@ $dispatcher = \FastRoute\simpleDispatcher(
           $books = array_filter($container->get('books'), function ($book) use ($id) {
               return $book->categoryID === $id;
           });
-          return $twig->render('category.twig.html', ['books' => $books]);
+          if (empty($books)) {
+              return [\FastRoute\Dispatcher::NOT_FOUND];
+          }
+          $category = reset($books)->category;
+          return $twig->render('category.twig.html', ['books' => $books, 'category' => $category]);
       });
   }
 );

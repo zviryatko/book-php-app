@@ -3,12 +3,12 @@
 {% block title %}Home - {{ parent() }}{% endblock %}
 
 {% block content %}
-    <h1>List of books</h1>
+    <h1 class="text-center">List of books</h1>
 
     {% if books is empty %}
         <div class="important">There is no books</div>
     {% else %}
-        <ul>
+        <ul class="list-unstyled">
             {% for book in books %}
                 <li class="col-md-6">
                     {% block book %}

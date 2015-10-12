@@ -1,29 +1,25 @@
 {% extends layout %}
 
-{% block title %}List of categories - {{ parent() }}{% endblock %}
+{% block title %}{{ category }} - {{ parent() }}{% endblock %}
 
 {% block content %}
-    <h1>List of categories</h1>
+    <h1 class="text-center">{{ category }}</h1>
 
-    {% if categories is empty %}
-        <div class="important">There is no categories</div>
-    {% else %}
-        <ul>
-            {% for category in categories %}
-                <li class="col-md-6">
-                    {% block category %}
-                        <div class="thumbnail text-center">
-                            <a href="/book/{{ category.id }}">
-                                <img src="/{{ category.image }}" alt="{{ category.title }}"/>
-                            </a>
+    <ul class="list-unstyled">
+        {% for book in books %}
+            <li class="col-md-6">
+                {% block book %}
+                    <div class="thumbnail text-center">
+                        <a href="/book/{{ book.id }}">
+                            <img src="/{{ book.image }}" alt="{{ book.title }}"/>
+                        </a>
 
-                            <h2 class="title"><a href="/book/{{ category.id }}">{{ category.title }}</a></h2>
+                        <h2 class="title"><a href="/book/{{ book.id }}">{{ book.title }}</a></h2>
 
-                            <div><a href="/author/{{ category.authorID }}">{{ category.author }}</a></div>
-                        </div>
-                    {% endblock %}
-                </li>
-            {% endfor %}
-        </ul>
-    {% endif %}
+                        <div><a href="/author/{{ book.authorID }}">{{ book.author }}</a></div>
+                    </div>
+                {% endblock %}
+            </li>
+        {% endfor %}
+    </ul>
 {% endblock %}

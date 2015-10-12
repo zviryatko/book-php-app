@@ -3,20 +3,19 @@
 {% block title %}List of authors - {{ parent() }}{% endblock %}
 
 {% block content %}
-    <h1>List of authors</h1>
+    <h1 class="text-center">List of authors</h1>
 
-    {% if authors is empty %}
+    {% if authors is empty %}s
         <div class="important">There is no authors</div>
     {% else %}
-        <ul>
+        <ul class="list-unstyled">
             {% for author in authors %}
                 <li class="col-md-6">
                     {% block author %}
                         <div class="author thumbnail text-center">
-                            <h3>{{ author.name }}</h3>
+                            <h3><a href="/author/{{ author.id }}">{{ author.name }}</a></h3>
                             <span class="drop text-left">
                                 <ul class="nav nav-pills nav-stacked">
-                                    <li><a href="/author/{{ author.id }}">Profile</a></li>
                                     {% for book in author.books %}
                                         <li><a href="/book/{{ book.id }}">{{ book.title }}</a></li>
                                     {% endfor %}
