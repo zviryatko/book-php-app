@@ -38,9 +38,11 @@ class Book
             return $book->id === $args['id'];
         });
 
-        $content = $this->twig->render('book.twig.html', [
-          'book' => reset($books),
-        ]);
+        if (empty($books)) {
+            throw new NotFoundException;
+        }
+
+        $content = $this->twig->render('book.twig.html', ['book' => reset($books)]);
 
         $response->setContent($content);
 
@@ -52,6 +54,11 @@ class Book
         $books = array_filter($this->books, function ($book) use ($args) {
             return $book->categoryID === $args['id'];
         });
+
+        if (empty($books)) {
+            throw new NotFoundException;
+        }
+
         $category = '';
         $firstBook = reset($books);
         if ($firstBook) {

@@ -8,6 +8,7 @@ namespace BookPhpApp\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use League\Route\Http\Exception\NotFoundException;
 
 class Author
 {
@@ -37,9 +38,11 @@ class Author
             return $book->id === $args['id'];
         });
 
-        $content = $this->twig->render('author.twig.html', [
-          'author' => reset($authors),
-        ]);
+        if (empty($authors)) {
+            throw new NotFoundException;
+        }
+
+        $content = $this->twig->render('author.twig.html', ['author' => reset($authors)]);
 
         $response->setContent($content);
 
