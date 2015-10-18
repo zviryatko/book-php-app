@@ -1,77 +1,56 @@
 <?php
 
-/**
- * @var \League\Container\Container $container
- */
-$container = require_once 'services.php';
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use League\Container\Container;
+use League\Route\RouteCollection;
+use League\Route\Http\Exception\NotFoundException;
 
-$twig = $container->get('twig');
+// Register our classes with dependencies.
+$container = new Container;
 
-/**
- * @var \FastRoute\Dispatcher $dispatcher
- */
-$dispatcher = \FastRoute\simpleDispatcher(
-  function (\FastRoute\RouteCollector $r) use ($twig, $container) {
-      $r->addRoute('GET', '/', function () use ($twig, $container) {
-          return $twig->render('home.twig.html', [
-            'books' => $container->get('books'),
-          ]);
-      });
-      $r->addRoute('GET', '/authors', function () use ($twig, $container) {
-          return $twig->render('authors.twig.html', [
-            'authors' => $container->get('authors'),
-          ]);
-      });
-      $r->addRoute('GET', '/book/{id:\d+}', function ($id) use ($twig, $container) {
-          $books = $container->get('books');
-          foreach ($books as $book) {
-              if ($book->id === $id) {
-                  return $twig->render('book.twig.html', array('book' => $book));
-              }
-          }
+$container->singleton('twig', function () {
+    $loader = new \Twig_Loader_Filesystem(__DIR__ . '/View');
+    $twig = new \Twig_Environment($loader, [
+      'cache' => dirname(__DIR__) . '/cache',
+      'debug' => true,
+    ]);
+    $twig->addGlobal('layout', 'layout.twig.html');
 
-          return [\FastRoute\Dispatcher::NOT_FOUND];
-      });
-      $r->addRoute('GET', '/author/{id:\d+}', function ($id) use ($twig, $container) {
-          $authors = $container->get('authors');
-          foreach ($authors as $author) {
-              if ($author->id === $id) {
-                  return $twig->render('author.twig.html', array('author' => $author));
-              }
-          }
+    return $twig;
+});
 
-          return [\FastRoute\Dispatcher::NOT_FOUND];
-      });
-      $r->addRoute('GET', '/category/{id:\d+}', function ($id) use ($twig, $container) {
-          $books = array_filter($container->get('books'), function ($book) use ($id) {
-              return $book->categoryID === $id;
-          });
-          if (empty($books)) {
-              return [\FastRoute\Dispatcher::NOT_FOUND];
-          }
-          $category = reset($books)->category;
-          return $twig->render('category.twig.html', ['books' => $books, 'category' => $category]);
-      });
-  }
-);
+$container->singleton('books', function () {
+    $books_provider = file_get_contents(dirname(__DIR__) . '/data/book-list.json');
+    return json_decode($books_provider);
+});
 
-$httpMethod = $_SERVER['REQUEST_METHOD'];
-$uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+$container->singleton('authors', function () {
+    $authors_provider = file_get_contents('data/authors-list.json');
+    return json_decode($authors_provider);
+});
 
-$routeInfo = $dispatcher->dispatch($httpMethod, $uri);
-switch ($routeInfo[0]) {
-    case \FastRoute\Dispatcher::NOT_FOUND:
-        echo $twig->render('404.twig.html');
-        break;
-    case \FastRoute\Dispatcher::METHOD_NOT_ALLOWED:
-        $allowedMethods = $routeInfo[1];
-        echo $twig->render('405.twig.html',
-          ['allowedMethods' => $allowedMethods]);
-        break;
-    case \FastRoute\Dispatcher::FOUND:
-        $handler = $routeInfo[1];
-        $vars = $routeInfo[2];
-        echo call_user_func_array($handler, $vars);
-        break;
+$container->add('BookPhpApp\Controller\Book')->withArguments(['twig', 'books']);
+$container->add('BookPhpApp\Controller\Author')->withArguments(['twig', 'authors']);
+
+// Register routes.
+$router = new RouteCollection($container);
+
+$router->addRoute('GET', '/', 'BookPhpApp\Controller\Book::indexAction');
+$router->addRoute('GET', '/book/{id:number}', 'BookPhpApp\Controller\Book::bookAction');
+$router->addRoute('GET', '/category/{id:number}', 'BookPhpApp\Controller\Book::categoryAction');
+$router->addRoute('GET', '/authors', 'BookPhpApp\Controller\Author::indexAction');
+$router->addRoute('GET', '/author/{id:number}', 'BookPhpApp\Controller\Author::authorAction');
+
+$dispatcher = $router->getDispatcher();
+$request = Request::createFromGlobals();
+
+try {
+    $response = $dispatcher->dispatch($request->getMethod(), $request->getPathInfo());
+    $response->send();
+} catch (NotFoundException $exception) {
+    $response = new Response;
+    $content = $container->get('twig')->render('404.twig.html');
+    $response->setContent($content);
+    $response->send();
 }
-
